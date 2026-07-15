@@ -27,7 +27,6 @@
         </svg>
         <div class="brand-text">
           <span class="brand-name">SportsWeek</span>
-          <span class="brand-tag">Your week in sport, one page</span>
         </div>
       </div>
       <div class="topbar-right">
@@ -38,6 +37,11 @@
         </button>
       </div>
     </header>
+
+    <section class="intro">
+      <p class="intro-tagline">All your sports. One week. One page.</p>
+      <p class="intro-sub">Pick the sports you follow — every match shows up below, day by day, in your local time zone.</p>
+    </section>
 
     <div class="layout">
       <aside class="sidebar">
@@ -56,9 +60,9 @@
             </div>
           </div>
           <div class="manual-range">
-            <label>From <input type="date" id="date-from"></label>
+            <label><span class="label-text">From</span> <input type="date" id="date-from" aria-label="From date"></label>
             <span class="range-arrow" aria-hidden="true">→</span>
-            <label>To <input type="date" id="date-to"></label>
+            <label><span class="label-text">To</span> <input type="date" id="date-to" aria-label="To date"></label>
             <button type="button" id="apply-range" class="apply-btn">Apply</button>
           </div>
         </section>

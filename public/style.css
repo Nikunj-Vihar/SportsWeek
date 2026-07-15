@@ -145,14 +145,6 @@ button:active { transform: scale(0.97); }
   letter-spacing: -0.015em;
   white-space: nowrap;
 }
-.brand-tag {
-  font-size: 0.78rem;
-  color: var(--muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-@media (max-width: 680px) { .brand-tag { display: none; } }
 
 .topbar-right { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
 
@@ -188,6 +180,23 @@ button:active { transform: scale(0.97); }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .icon-sun { display: none; }
   :root:not([data-theme="light"]) .icon-moon { display: block; }
+}
+
+/* ---------- Intro (first-time orientation) ---------- */
+
+.intro { margin: 0 0 1.5rem; }
+.intro-tagline {
+  margin: 0 0 0.25rem;
+  font-size: clamp(1.2rem, 4.2vw, 1.5rem);
+  font-weight: 700;
+  letter-spacing: -0.022em;
+  line-height: 1.25;
+}
+.intro-sub {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+  max-width: 40rem;
 }
 
 /* ---------- Layout ---------- */
@@ -442,6 +451,29 @@ input[type="date"]:focus {
   transition: background 120ms ease, border-color 120ms ease, transform 120ms var(--ease-spring);
 }
 .apply-btn:hover { background: var(--surface-2); }
+
+/* On phones the date filter becomes one aligned strip:
+   [ from ] → [ to ] [Apply], all equal height, no wrapping. */
+@media (max-width: 900px) {
+  .controls { gap: 0.6rem; }
+  .manual-range {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto;
+    align-items: stretch;
+    width: 100%;
+    gap: 0.45rem;
+    flex-wrap: nowrap;
+  }
+  .manual-range label { width: 100%; }
+  .manual-range .label-text { display: none; }
+  .manual-range input[type="date"] {
+    width: 100%;
+    min-height: 2.5rem;
+    text-align: center;
+  }
+  .range-arrow { align-self: center; }
+  .apply-btn { min-height: 2.5rem; }
+}
 
 /* ---------- Summary & notes ---------- */
 
