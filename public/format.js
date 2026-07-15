@@ -27,6 +27,14 @@ export function formatEventTime(isoUtc, { timeZone, locale } = {}) {
   }).format(new Date(isoUtc));
 }
 
+/** Compact event time like "3:00 PM" (zone shown once in the page chrome). */
+export function formatTimeShort(isoUtc, { timeZone, locale } = {}) {
+  return new Intl.DateTimeFormat(locale, {
+    hour: 'numeric', minute: '2-digit',
+    ...(timeZone ? { timeZone } : {}),
+  }).format(new Date(isoUtc));
+}
+
 /** "2 hours ago"-style age string for stale-cache notes. */
 export function hoursAgo(isoTimestamp, nowMs = Date.now()) {
   const ageMs = nowMs - Date.parse(isoTimestamp);
