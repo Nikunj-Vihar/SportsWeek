@@ -95,16 +95,9 @@ function applyPreset(name) {
   el.presets.forEach((b) => b.classList.toggle('active', b.dataset.preset === name));
 }
 
-// ---------- Sport colors ----------
-
-/** Deterministic hue per sport so its color is stable across sessions. */
-function sportHue(name) {
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
-  return hash % 360;
-}
-
 // ---------- Sport picker ----------
+
+const CHECK_SVG = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3.2 3.2L13 5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
 async function loadSports() {
   try {
@@ -148,7 +141,6 @@ function renderPicker() {
     for (const name of names) {
       const chip = document.createElement('label');
       chip.className = 'chip';
-      chip.style.setProperty('--hue', sportHue(name));
       if (state.selected.has(name)) chip.classList.add('on');
 
       const checkbox = document.createElement('input');
@@ -164,11 +156,12 @@ function renderPicker() {
         scheduleRefresh();
       });
 
-      const dot = document.createElement('span');
-      dot.className = 'chip-dot';
-      dot.setAttribute('aria-hidden', 'true');
+      const check = document.createElement('span');
+      check.className = 'chip-check';
+      check.setAttribute('aria-hidden', 'true');
+      check.innerHTML = CHECK_SVG;
 
-      chip.append(checkbox, dot, document.createTextNode(name));
+      chip.append(checkbox, check, document.createTextNode(name));
       row.appendChild(chip);
     }
     section.appendChild(row);
@@ -319,7 +312,6 @@ function renderResults(data) {
 
       const sportTag = document.createElement('span');
       sportTag.className = 'sport-tag';
-      sportTag.style.setProperty('--hue', sportHue(event.sport));
       sportTag.textContent = event.sport;
 
       // Matches read best as "A vs B" with the league as a subtitle;
