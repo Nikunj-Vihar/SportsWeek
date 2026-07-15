@@ -4,11 +4,16 @@ import { localDayKey, formatDayHeading, formatTimeShort, hoursAgo } from './form
 const STORAGE_KEY = 'sportsweek:selectedSports';
 const THEME_KEY = 'sportsweek:theme';
 
+// The sport picker exists once (instantiated from <template>) and lives in
+// the sidebar on wide screens or inside the bottom sheet on phones.
+const picker = document.getElementById('picker-template').content.firstElementChild.cloneNode(true);
+document.getElementById('picker-home-desktop').appendChild(picker);
+
 const el = {
-  search: document.getElementById('sport-search'),
-  groups: document.getElementById('sport-groups'),
-  selectedCount: document.getElementById('selected-count'),
-  clearSports: document.getElementById('clear-sports'),
+  search: picker.querySelector('#sport-search'),
+  groups: picker.querySelector('#sport-groups'),
+  selectedCount: picker.querySelector('#selected-count'),
+  clearSports: picker.querySelector('#clear-sports'),
   presets: document.querySelectorAll('.preset'),
   from: document.getElementById('date-from'),
   to: document.getElementById('date-to'),
@@ -18,6 +23,14 @@ const el = {
   results: document.getElementById('results'),
   tzPill: document.getElementById('tz-pill'),
   themeToggle: document.getElementById('theme-toggle'),
+  themeColorMeta: document.getElementById('theme-color-meta'),
+  pickerHomeDesktop: document.getElementById('picker-home-desktop'),
+  pickerHomeMobile: document.getElementById('picker-home-mobile'),
+  openSports: document.getElementById('open-sports'),
+  bottombarCount: document.getElementById('bottombar-count'),
+  sheet: document.getElementById('sport-sheet'),
+  sheetScrim: document.getElementById('sheet-scrim'),
+  sheetDone: document.getElementById('sheet-done'),
 };
 
 const state = {
@@ -28,7 +41,9 @@ const state = {
   requestSeq: 0,
 };
 
-// ---------- Theme ----------
+// ---------- Theme (incl. native status-bar color via theme-color) ----------
+
+const THEME_COLORS = { light: '#fafafa', dark: '#0b0b0c' };
 
 function currentThemeIsDark() {
   const override = document.documentElement.dataset.theme;
@@ -36,15 +51,71 @@ function currentThemeIsDark() {
   return window.matchMedia('(prefers-color-scheme: dark)').matches;
 }
 
+function syncThemeColor() {
+  el.themeColorMeta.content = THEME_COLORS[currentThemeIsDark() ? 'dark' : 'light'];
+}
+
 function initTheme() {
   const saved = localStorage.getItem(THEME_KEY);
   if (saved === 'light' || saved === 'dark') {
     document.documentElement.dataset.theme = saved;
   }
+  syncThemeColor();
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncThemeColor);
   el.themeToggle.addEventListener('click', () => {
     const next = currentThemeIsDark() ? 'light' : 'dark';
     document.documentElement.dataset.theme = next;
     localStorage.setItem(THEME_KEY, next);
+    syncThemeColor();
+  });
+}
+
+// ---------- Bottom sheet (mobile sport picker) ----------
+
+const mobileLayout = window.matchMedia('(max-width: 900px)');
+
+function placePicker() {
+  const home = mobileLayout.matches ? el.pickerHomeMobile : el.pickerHomeDesktop;
+  if (picker.parentElement !== home) home.appendChild(picker);
+  if (!mobileLayout.matches) closeSheet({ instant: true });
+}
+
+function openSheet() {
+  el.sheet.hidden = false;
+  document.body.classList.add('sheet-open');
+  // Next frame so the entrance transition actually plays.
+  requestAnimationFrame(() => el.sheet.classList.add('open'));
+  el.sheetDone.focus({ preventScroll: true });
+}
+
+function closeSheet({ instant = false } = {}) {
+  if (el.sheet.hidden) return;
+  document.body.classList.remove('sheet-open');
+  if (instant) {
+    el.sheet.classList.remove('open');
+    el.sheet.hidden = true;
+    return;
+  }
+  el.sheet.classList.remove('open');
+  const panel = el.sheet.querySelector('.sheet-panel');
+  const onEnd = (event) => {
+    if (event.target !== panel) return;
+    panel.removeEventListener('transitionend', onEnd);
+    el.sheet.hidden = true;
+  };
+  panel.addEventListener('transitionend', onEnd);
+  // Fallback if transitionend never fires (e.g. reduced motion).
+  setTimeout(() => { if (!el.sheet.classList.contains('open')) el.sheet.hidden = true; }, 500);
+}
+
+function initSheet() {
+  placePicker();
+  mobileLayout.addEventListener('change', placePicker);
+  el.openSports.addEventListener('click', openSheet);
+  el.sheetDone.addEventListener('click', () => closeSheet());
+  el.sheetScrim.addEventListener('click', () => closeSheet());
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeSheet();
   });
 }
 
@@ -80,19 +151,19 @@ function addDays(date, days) {
   return copy;
 }
 
-function setRange(fromDate, toDate) {
-  state.from = localDateString(fromDate);
-  state.to = localDateString(toDate);
-  el.from.value = state.from;
-  el.to.value = state.to;
-}
-
 /** Monday of the week containing `date` (weeks run Monday → Sunday). */
 function startOfWeek(date) {
   const copy = new Date(date);
   const sinceMonday = (copy.getDay() + 6) % 7; // Mon=0 … Sun=6
   copy.setDate(copy.getDate() - sinceMonday);
   return copy;
+}
+
+function setRange(fromDate, toDate) {
+  state.from = localDateString(fromDate);
+  state.to = localDateString(toDate);
+  el.from.value = state.from;
+  el.to.value = state.to;
 }
 
 function applyPreset(name) {
@@ -184,6 +255,8 @@ function updatePickerMeta() {
   el.selectedCount.hidden = n === 0;
   el.clearSports.hidden = n === 0;
   el.selectedCount.textContent = n === 1 ? '1 selected' : `${n} selected`;
+  el.bottombarCount.hidden = n === 0;
+  el.bottombarCount.textContent = String(n);
 }
 
 // ---------- Results ----------
@@ -220,7 +293,7 @@ async function refresh() {
     title.textContent = 'Pick your sports to get started';
     const sub = document.createElement('p');
     sub.className = 'muted';
-    sub.textContent = 'Choose the sports and leagues you follow from the panel — every match in your range shows up here, in your own time zone.';
+    sub.textContent = 'Choose the sports and leagues you follow — every match in your range shows up here, in your own time zone.';
     hero.append(title, sub);
     el.results.appendChild(hero);
     return;
@@ -286,9 +359,11 @@ function renderResults(data) {
   const todayKey = localDayKey(new Date().toISOString());
   const tomorrowKey = localDayKey(addDays(new Date(), 1).toISOString());
 
+  let dayIndex = 0;
   for (const [dayKey, events] of [...byDay.entries()].sort(([a], [b]) => a.localeCompare(b))) {
     const card = document.createElement('section');
     card.className = 'day-card';
+    card.style.setProperty('--i', dayIndex++); // staggered entrance
 
     const head = document.createElement('div');
     head.className = 'day-head';
@@ -398,6 +473,7 @@ function msg(text, kind = 'muted') {
 // ---------- Wire up ----------
 
 initTheme();
+initSheet();
 el.tzPill.textContent = Intl.DateTimeFormat().resolvedOptions().timeZone.replaceAll('_', ' ');
 
 el.search.addEventListener('input', renderPicker);

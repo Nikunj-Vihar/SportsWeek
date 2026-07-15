@@ -2,13 +2,19 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <!-- CSP: same-origin only, plus *.workers.dev so the frontend on GitHub
        Pages can reach the proxy. Tighten to your exact worker URL on deploy. -->
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self' https://*.workers.dev; img-src 'self' data:; base-uri 'none'; form-action 'none'">
   <title>SportsWeek — your week in sport, one page</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234f46e5'/%3E%3Cpath d='M9 8h14a1 1 0 0 1 1 1v3H8V9a1 1 0 0 1 1-1zm-1 6h16v9a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-9zm4 3v2h2v-2h-2zm5 0v2h2v-2h-2z' fill='white'/%3E%3C/svg%3E">
+  <meta name="theme-color" id="theme-color-meta" content="#fafafa">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="SportsWeek">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -16,7 +22,7 @@
     <header class="topbar">
       <div class="brand">
         <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
-          <rect width="32" height="32" rx="8" fill="currentColor" opacity="0.14"/>
+          <rect width="32" height="32" rx="8" fill="currentColor" opacity="0.12"/>
           <path d="M9 8h14a1 1 0 0 1 1 1v3H8V9a1 1 0 0 1 1-1zm-1 6h16v9a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-9zm4 3v2h2v-2h-2zm5 0v2h2v-2h-2z" fill="currentColor"/>
         </svg>
         <div class="brand-text">
@@ -35,32 +41,19 @@
 
     <div class="layout">
       <aside class="sidebar">
-        <section class="panel picker-panel" aria-labelledby="picker-heading">
-          <div class="panel-head">
-            <h2 id="picker-heading">Your sports</h2>
-            <div class="picker-meta">
-              <span id="selected-count" class="count-badge" hidden></span>
-              <button type="button" id="clear-sports" class="text-btn" hidden>Clear</button>
-            </div>
-          </div>
-          <div class="search-wrap">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-            <input type="search" id="sport-search" placeholder="Search sports…" aria-label="Search sports">
-          </div>
-          <div id="sport-groups" class="sport-groups">
-            <p class="muted">Loading sports…</p>
-          </div>
-        </section>
+        <div id="picker-home-desktop"></div>
         <p class="privacy-note">Your picks are stored only in this browser — nothing is sent to or stored on any server.</p>
       </aside>
 
       <main class="content">
-        <section class="panel controls" aria-labelledby="range-heading">
+        <section class="controls" aria-labelledby="range-heading">
           <h2 id="range-heading" class="visually-hidden">Date range</h2>
-          <div class="segmented" role="group" aria-label="Date range presets">
-            <button type="button" data-preset="week" class="preset active">This week</button>
-            <button type="button" data-preset="nextweek" class="preset">Next week</button>
-            <button type="button" data-preset="fortnight" class="preset">Next 14 days</button>
+          <div class="segmented-scroll">
+            <div class="segmented" role="group" aria-label="Date range presets">
+              <button type="button" data-preset="week" class="preset active">This week</button>
+              <button type="button" data-preset="nextweek" class="preset">Next week</button>
+              <button type="button" data-preset="fortnight" class="preset">Next 14 days</button>
+            </div>
           </div>
           <div class="manual-range">
             <label>From <input type="date" id="date-from"></label>
@@ -72,19 +65,58 @@
 
         <div id="summary" class="summary" aria-live="polite"></div>
         <div id="notes"></div>
-        <section id="results" class="results" aria-live="polite" aria-label="Schedule">
-          <div class="hero-empty">
-            <p class="hero-empty-title">Pick your sports to get started</p>
-            <p class="muted">Choose the sports and leagues you follow from the panel — every match in your range shows up here, in your own time zone.</p>
-          </div>
-        </section>
+        <section id="results" class="results" aria-live="polite" aria-label="Schedule"></section>
       </main>
     </div>
 
     <footer class="foot">
       <p class="muted">Data via TheSportsDB &amp; Jolpica-F1 · No accounts, no cookies, no tracking</p>
+      <p class="muted privacy-note-mobile">Your picks are stored only in this browser — nothing is sent to any server.</p>
     </footer>
   </div>
+
+  <!-- Mobile bottom action bar (thumb zone) -->
+  <div class="bottombar">
+    <button type="button" id="open-sports" class="bottombar-btn">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <span>Choose sports</span>
+      <span id="bottombar-count" class="bottombar-count" hidden></span>
+    </button>
+  </div>
+
+  <!-- Sport picker: lives in the sidebar on wide screens, in this bottom
+       sheet on phones (reparented by app.js). -->
+  <div class="sheet" id="sport-sheet" role="dialog" aria-modal="true" aria-label="Choose your sports" hidden>
+    <div class="sheet-scrim" id="sheet-scrim"></div>
+    <div class="sheet-panel">
+      <div class="sheet-grabber" aria-hidden="true"></div>
+      <div class="sheet-head">
+        <span class="sheet-title">Your sports</span>
+        <button type="button" id="sheet-done" class="sheet-done">Done</button>
+      </div>
+      <div class="sheet-body" id="picker-home-mobile"></div>
+    </div>
+  </div>
+
+  <!-- The one true picker; app.js moves it between its two homes. -->
+  <template id="picker-template">
+    <section class="picker" aria-labelledby="picker-heading">
+      <div class="panel-head">
+        <h2 id="picker-heading">Your sports</h2>
+        <div class="picker-meta">
+          <span id="selected-count" class="count-badge" hidden></span>
+          <button type="button" id="clear-sports" class="text-btn" hidden>Clear</button>
+        </div>
+      </div>
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input type="search" id="sport-search" placeholder="Search sports…" aria-label="Search sports">
+      </div>
+      <div id="sport-groups" class="sport-groups">
+        <p class="muted">Loading sports…</p>
+      </div>
+    </section>
+  </template>
 
   <script type="module" src="app.js"></script>
 </body>
