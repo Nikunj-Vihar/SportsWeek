@@ -1,0 +1,45 @@
+{
+  "MRData": {
+    "series": "f1",
+    "limit": "100",
+    "offset": "0",
+    "total": "2",
+    "RaceTable": {
+      "season": "2026",
+      "Races": [
+        {
+          "season": "2026",
+          "round": "13",
+          "url": "https://en.wikipedia.org/wiki/2026_Belgian_Grand_Prix",
+          "raceName": "Belgian Grand Prix",
+          "Circuit": {
+            "circuitId": "spa",
+            "circuitName": "Circuit de Spa-Francorchamps",
+            "Location": { "lat": "50.4372", "long": "5.97139", "locality": "Spa", "country": "Belgium" }
+          },
+          "date": "2026-07-19",
+          "time": "13:00:00Z",
+          "FirstPractice": { "date": "2026-07-17", "time": "10:30:00Z" },
+          "SecondPractice": { "date": "2026-07-17", "time": "14:00:00Z" },
+          "ThirdPractice": { "date": "2026-07-18", "time": "09:30:00Z" },
+          "Qualifying": { "date": "2026-07-18", "time": "13:00:00Z" }
+        },
+        {
+          "season": "2026",
+          "round": "14",
+          "raceName": "Hungarian Grand Prix",
+          "Circuit": {
+            "circuitId": "hungaroring",
+            "circuitName": "Hungaroring",
+            "Location": { "lat": "47.5789", "long": "19.2486", "locality": "Budapest", "country": "Hungary" }
+          },
+          "date": "2026-08-02",
+          "time": "13:00:00Z",
+          "SprintQualifying": { "date": "2026-07-31", "time": "14:30:00Z" },
+          "Sprint": { "date": "2026-08-01", "time": "09:00:00Z" },
+          "Qualifying": { "date": "2026-08-01", "time": "13:00:00Z" }
+        }
+      ]
+    }
+  }
+}

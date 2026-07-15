@@ -1,0 +1,9 @@
+{
+  "MRData": {
+    "series": "f1",
+    "limit": "100",
+    "offset": "0",
+    "total": "0",
+    "RaceTable": { "season": "2026", "Races": [] }
+  }
+}

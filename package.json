@@ -1,0 +1,12 @@
+{
+  "name": "sportsweek",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Multi-sport schedule aggregator: static frontend + serverless proxy",
+  "scripts": {
+    "dev": "node dev-server.js",
+    "test": "node --test 'test/*.test.js'",
+    "verify:live": "node scripts/verify-live.js"
+  }
+}

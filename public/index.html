@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- CSP: same-origin only, plus *.workers.dev so the frontend on GitHub
+       Pages can reach the proxy. Tighten to your exact worker URL on deploy. -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self' https://*.workers.dev; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+  <title>SportsWeek — your week in sport, one page</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>SportsWeek</h1>
+    <p class="tagline">Pick your sports. See every match this week, in your time zone.</p>
+    <p class="privacy-note">Your sport picks are stored only in this browser (localStorage). Nothing is sent to or stored on any server.</p>
+  </header>
+
+  <main>
+    <section class="picker" aria-labelledby="picker-heading">
+      <div class="picker-head">
+        <h2 id="picker-heading">Your sports</h2>
+        <input type="search" id="sport-search" placeholder="Search sports…" aria-label="Search sports">
+      </div>
+      <div id="sport-groups" class="sport-groups">
+        <p class="muted">Loading sports…</p>
+      </div>
+    </section>
+
+    <section class="range" aria-labelledby="range-heading">
+      <h2 id="range-heading">Date range</h2>
+      <div class="range-controls">
+        <div class="presets" role="group" aria-label="Date range presets">
+          <button type="button" data-preset="week" class="preset active">This week</button>
+          <button type="button" data-preset="nextweek" class="preset">Next week</button>
+          <button type="button" data-preset="fortnight" class="preset">Next 14 days</button>
+        </div>
+        <div class="manual-range">
+          <label>From <input type="date" id="date-from"></label>
+          <label>To <input type="date" id="date-to"></label>
+          <button type="button" id="apply-range">Apply</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="results" aria-labelledby="results-heading" aria-live="polite">
+      <h2 id="results-heading">Schedule</h2>
+      <div id="notes"></div>
+      <div id="results">
+        <p class="muted">Select at least one sport to see its schedule.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p class="muted">Data via TheSportsDB and Jolpica-F1. Times shown in your local time zone.</p>
+  </footer>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

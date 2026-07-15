@@ -1,0 +1,40 @@
+{
+  "events": [
+    {
+      "idEvent": "3000001",
+      "strEvent": "Valid FC vs Kept United",
+      "strLeague": "Test League",
+      "strHomeTeam": "Valid FC",
+      "strAwayTeam": "Kept United",
+      "dateEvent": "2026-07-18",
+      "strTime": "18:00:00",
+      "strTimestamp": "2026-07-18T18:00:00"
+    },
+    {
+      "strEvent": "No Id vs Missing Id",
+      "strLeague": "Test League",
+      "dateEvent": "2026-07-18",
+      "strTimestamp": "2026-07-18T19:00:00"
+    },
+    {
+      "idEvent": "3000003",
+      "strEvent": "Broken Time vs No Date",
+      "strLeague": "Test League",
+      "strTimestamp": "not-a-timestamp",
+      "dateEvent": null,
+      "strTime": null
+    },
+    {
+      "idEvent": "3000004",
+      "strEvent": null,
+      "strLeague": 12345,
+      "strHomeTeam": null,
+      "strAwayTeam": 99,
+      "dateEvent": "2026-07-19",
+      "strTime": "07:15:00",
+      "strTimestamp": null
+    },
+    null,
+    "garbage-string-instead-of-object"
+  ]
+}

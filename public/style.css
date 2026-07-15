@@ -1,0 +1,136 @@
+:root {
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --text: #1a1d21;
+  --muted: #6b7280;
+  --accent: #1d4ed8;
+  --accent-soft: #dbeafe;
+  --border: #e2e5ea;
+  --warn-bg: #fef9e7;
+  --warn-text: #92600a;
+  --error-bg: #fdecec;
+  --error-text: #9b1c1c;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #101317;
+    --surface: #181c22;
+    --text: #e8eaed;
+    --muted: #9aa2ad;
+    --accent: #7aa2ff;
+    --accent-soft: #1e2a45;
+    --border: #2a2f37;
+    --warn-bg: #33290f;
+    --warn-text: #e5c26b;
+    --error-bg: #3a1717;
+    --error-text: #f2a0a0;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0 auto;
+  max-width: 60rem;
+  padding: 1.5rem 1rem 4rem;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  line-height: 1.5;
+  background: var(--bg);
+  color: var(--text);
+}
+
+header h1 { margin: 0 0 0.25rem; font-size: 1.9rem; }
+.tagline { margin: 0; color: var(--muted); }
+.privacy-note { font-size: 0.8rem; color: var(--muted); margin-top: 0.5rem; }
+
+h2 { font-size: 1.15rem; margin: 2rem 0 0.75rem; }
+h3 { font-size: 1rem; margin: 1.25rem 0 0.5rem; }
+
+section.picker, section.range, section.results {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.25rem 1.25rem;
+  margin-top: 1.25rem;
+}
+section h2 { margin-top: 0; }
+
+.picker-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+}
+#sport-search {
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  min-width: 14rem;
+}
+
+.sport-groups { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 0.75rem; margin-top: 1rem; }
+fieldset { border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem 0.9rem 0.8rem; margin: 0; }
+legend { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); padding: 0 0.35rem; }
+.sport-option { display: block; padding: 0.15rem 0; cursor: pointer; }
+.sport-option input { accent-color: var(--accent); margin-right: 0.35rem; }
+
+.range-controls { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; }
+.presets { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+button {
+  font: inherit;
+  padding: 0.4rem 0.9rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+button:hover { border-color: var(--accent); }
+button.preset.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.manual-range { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+.manual-range label { font-size: 0.9rem; color: var(--muted); }
+input[type="date"] {
+  font: inherit;
+  padding: 0.3rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.day ul { list-style: none; margin: 0; padding: 0; }
+.event {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+  align-items: baseline;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.event:last-child { border-bottom: none; }
+.sport-tag {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 999px;
+  padding: 0.1rem 0.6rem;
+}
+.event-title { flex: 1 1 16rem; }
+.event-time { color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.muted { color: var(--muted); }
+.note { border-radius: 8px; padding: 0.5rem 0.85rem; margin: 0.4rem 0; font-size: 0.9rem; }
+.note.stale { background: var(--warn-bg); color: var(--warn-text); }
+.note.error { background: var(--error-bg); color: var(--error-text); }
+.note.empty { background: var(--bg); color: var(--muted); border: 1px dashed var(--border); }
+
+footer { margin-top: 2.5rem; font-size: 0.8rem; }

@@ -1,0 +1,46 @@
+{
+  "events": [
+    {
+      "idEvent": "2482724",
+      "strEvent": "Dambulla Sixers vs Kandy Royals",
+      "strSport": "Cricket",
+      "idLeague": "5175",
+      "strLeague": "Lanka Premier League",
+      "strSeason": "2026",
+      "strHomeTeam": "Dambulla Sixers",
+      "strAwayTeam": "Kandy Royals",
+      "dateEvent": "2026-07-18",
+      "strTime": "09:30:00",
+      "strTimestamp": "2026-07-18T09:30:00",
+      "strStatus": "Not Started"
+    },
+    {
+      "idEvent": "2482725",
+      "strEvent": "Galle Marvels vs Colombo Strikers",
+      "strSport": "Cricket",
+      "idLeague": "5175",
+      "strLeague": "Lanka Premier League",
+      "strSeason": "2026",
+      "strHomeTeam": "Galle Marvels",
+      "strAwayTeam": "Colombo Strikers",
+      "dateEvent": "2026-07-18",
+      "strTime": "14:00:00",
+      "strTimestamp": "2026-07-18T14:00:00",
+      "strStatus": "Not Started"
+    },
+    {
+      "idEvent": "2490001",
+      "strEvent": "Zimbabwe vs Bangladesh",
+      "strSport": "Cricket",
+      "idLeague": "4460",
+      "strLeague": "Twenty20 International Series",
+      "strSeason": "2026",
+      "strHomeTeam": "Zimbabwe",
+      "strAwayTeam": "Bangladesh",
+      "dateEvent": "2026-07-18",
+      "strTime": "10:30:00",
+      "strTimestamp": null,
+      "strStatus": "Not Started"
+    }
+  ]
+}

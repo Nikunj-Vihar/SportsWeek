@@ -1,0 +1,20 @@
+name = "sportsweek-proxy"
+main = "worker/index.js"
+compatibility_date = "2026-07-01"
+
+# CORS: set to your GitHub Pages origin in production, e.g.
+# ALLOWED_ORIGIN = "https://<username>.github.io"
+[vars]
+ALLOWED_ORIGIN = "*"
+
+# Optional but recommended: persistent cache so stale-serving works across
+# isolates. Create with:  wrangler kv namespace create SPORTSWEEK_KV
+# then paste the id below and uncomment.
+# [[kv_namespaces]]
+# binding = "SPORTSWEEK_KV"
+# id = "<your-kv-namespace-id>"
+
+# Secrets (never in this file, never in git):
+#   wrangler secret put THESPORTSDB_KEY
+# Without it the Worker falls back to TheSportsDB's public demo key "3"
+# (rate-limited, results capped at ~3 events per sport per day).

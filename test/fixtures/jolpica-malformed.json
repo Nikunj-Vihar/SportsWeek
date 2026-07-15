@@ -1,0 +1,33 @@
+{
+  "MRData": {
+    "series": "f1",
+    "RaceTable": {
+      "season": "2026",
+      "Races": [
+        {
+          "season": "2026",
+          "round": "13",
+          "raceName": "Belgian Grand Prix",
+          "date": "2026-07-19",
+          "time": "13:00:00Z",
+          "Qualifying": { "date": "not-a-date", "time": "banana" }
+        },
+        {
+          "season": "2026",
+          "round": 14,
+          "date": "2026-08-02",
+          "time": "13:00:00Z"
+        },
+        {
+          "season": "2026",
+          "round": "15",
+          "raceName": "Dutch Grand Prix",
+          "date": null,
+          "time": null,
+          "Qualifying": { "date": "2026-07-18", "time": "13:00:00Z" }
+        },
+        null
+      ]
+    }
+  }
+}
