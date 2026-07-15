@@ -2,17 +2,14 @@ name = "sportsweek-proxy"
 main = "worker/index.js"
 compatibility_date = "2026-07-01"
 
-# CORS: set to your GitHub Pages origin in production, e.g.
-# ALLOWED_ORIGIN = "https://<username>.github.io"
+# CORS: restricted to the deployed GitHub Pages origin.
 [vars]
-ALLOWED_ORIGIN = "*"
+ALLOWED_ORIGIN = "https://nikunj-vihar.github.io"
 
-# Optional but recommended: persistent cache so stale-serving works across
-# isolates. Create with:  wrangler kv namespace create SPORTSWEEK_KV
-# then paste the id below and uncomment.
-# [[kv_namespaces]]
-# binding = "SPORTSWEEK_KV"
-# id = "<your-kv-namespace-id>"
+# Persistent cache so stale-serving works across isolates.
+[[kv_namespaces]]
+binding = "SPORTSWEEK_KV"
+id = "55d7be11d3204c459db2027726b00322"
 
 # Secrets (never in this file, never in git):
 #   wrangler secret put THESPORTSDB_KEY
