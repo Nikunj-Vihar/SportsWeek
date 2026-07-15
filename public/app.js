@@ -87,10 +87,19 @@ function setRange(fromDate, toDate) {
   el.to.value = state.to;
 }
 
+/** Monday of the week containing `date` (weeks run Monday → Sunday). */
+function startOfWeek(date) {
+  const copy = new Date(date);
+  const sinceMonday = (copy.getDay() + 6) % 7; // Mon=0 … Sun=6
+  copy.setDate(copy.getDate() - sinceMonday);
+  return copy;
+}
+
 function applyPreset(name) {
   const today = new Date();
-  if (name === 'week') setRange(today, addDays(today, 6));
-  if (name === 'nextweek') setRange(addDays(today, 7), addDays(today, 13));
+  const monday = startOfWeek(today);
+  if (name === 'week') setRange(monday, addDays(monday, 6));
+  if (name === 'nextweek') setRange(addDays(monday, 7), addDays(monday, 13));
   if (name === 'fortnight') setRange(today, addDays(today, 13));
   el.presets.forEach((b) => b.classList.toggle('active', b.dataset.preset === name));
 }
