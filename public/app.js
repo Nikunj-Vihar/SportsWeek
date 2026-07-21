@@ -1,5 +1,6 @@
 import { API_BASE } from './config.js';
 import { localDayKey, formatDayHeading, formatTimeShort, hoursAgo } from './format.js';
+import { sportIconSvg } from './icons.js';
 
 const STORAGE_KEY = 'sportsweek:selectedSports';
 const THEME_KEY = 'sportsweek:theme';
@@ -236,12 +237,16 @@ function renderPicker() {
         scheduleRefresh();
       });
 
+      const icon = document.createElement('span');
+      icon.className = 'chip-icon';
+      icon.innerHTML = sportIconSvg(name);
+
       const check = document.createElement('span');
       check.className = 'chip-check';
       check.setAttribute('aria-hidden', 'true');
       check.innerHTML = CHECK_SVG;
 
-      chip.append(checkbox, check, document.createTextNode(name));
+      chip.append(checkbox, icon, check, document.createTextNode(name));
       row.appendChild(chip);
     }
     section.appendChild(row);
@@ -396,7 +401,10 @@ function renderResults(data) {
 
       const sportTag = document.createElement('span');
       sportTag.className = 'sport-tag';
-      sportTag.textContent = event.sport;
+      const tagIcon = document.createElement('span');
+      tagIcon.className = 'sport-tag-icon';
+      tagIcon.innerHTML = sportIconSvg(event.sport);
+      sportTag.append(tagIcon, document.createTextNode(event.sport));
 
       // Matches read best as "A vs B" with the league as a subtitle;
       // single-entity events as "Grand Prix name — Race".
