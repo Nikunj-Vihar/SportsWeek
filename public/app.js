@@ -16,6 +16,11 @@ const el = {
   selectedCount: picker.querySelector('#selected-count'),
   clearSports: picker.querySelector('#clear-sports'),
   presets: document.querySelectorAll('.preset'),
+  segmented: document.querySelector('.segmented'),
+  segmentedThumb: document.getElementById('segmented-thumb'),
+  insights: document.getElementById('insights'),
+  ptrIndicator: document.getElementById('ptr-indicator'),
+  jumpToday: document.getElementById('jump-today'),
   from: document.getElementById('date-from'),
   to: document.getElementById('date-to'),
   apply: document.getElementById('apply-range'),
@@ -69,6 +74,73 @@ function initTheme() {
     document.documentElement.dataset.theme = next;
     localStorage.setItem(THEME_KEY, next);
     syncThemeColor();
+  });
+}
+
+// ---------- Large Title collapse (iOS nav pattern, mobile only) ----------
+
+function initLargeTitle() {
+  const THRESHOLD = 24; // px scrolled before the compact title takes over
+  let ticking = false;
+  window.addEventListener('scroll', () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      document.body.classList.toggle('scrolled', window.scrollY > THRESHOLD);
+      ticking = false;
+    });
+  }, { passive: true });
+}
+
+// ---------- Segmented control sliding thumb ----------
+
+function positionSegmentedThumb() {
+  const active = el.segmented.querySelector('.preset.active');
+  if (!active) return;
+  el.segmentedThumb.style.width = `${active.offsetWidth}px`;
+  el.segmentedThumb.style.transform = `translateX(${active.offsetLeft - 3.2}px)`;
+}
+
+// ---------- Pull-to-refresh (mobile) ----------
+
+function initPullToRefresh() {
+  const THRESHOLD = 64;
+  let startY = null;
+  let pulling = false;
+
+  window.addEventListener('touchstart', (event) => {
+    if (window.scrollY > 0 || !mobileLayout.matches) { startY = null; return; }
+    startY = event.touches[0].clientY;
+    pulling = false;
+  }, { passive: true });
+
+  window.addEventListener('touchmove', (event) => {
+    if (startY === null) return;
+    const dy = event.touches[0].clientY - startY;
+    if (dy <= 0) return;
+    pulling = true;
+    const pull = Math.min(dy * 0.5, THRESHOLD * 1.4);
+    el.ptrIndicator.style.height = `${pull}px`;
+    el.ptrIndicator.querySelector('svg').style.transform = `rotate(${pull * 4}deg)`;
+    el.ptrIndicator.classList.toggle('ready', pull >= THRESHOLD);
+  }, { passive: true });
+
+  window.addEventListener('touchend', () => {
+    if (!pulling) { startY = null; return; }
+    const ready = el.ptrIndicator.classList.contains('ready');
+    pulling = false;
+    startY = null;
+    if (ready) {
+      el.ptrIndicator.style.height = '2.6rem';
+      el.ptrIndicator.classList.add('refreshing');
+      el.ptrIndicator.classList.remove('ready');
+      refresh().finally(() => {
+        el.ptrIndicator.classList.remove('refreshing');
+        el.ptrIndicator.style.height = '0';
+      });
+    } else {
+      el.ptrIndicator.style.height = '0';
+    }
   });
 }
 
@@ -175,6 +247,7 @@ function applyPreset(name) {
   if (name === 'nextweek') setRange(addDays(monday, 7), addDays(monday, 13));
   if (name === 'fortnight') setRange(today, addDays(today, 13));
   el.presets.forEach((b) => b.classList.toggle('active', b.dataset.preset === name));
+  positionSegmentedThumb();
 }
 
 // ---------- Sport picker ----------
@@ -292,6 +365,7 @@ async function refresh() {
   el.summary.innerHTML = '';
   if (state.selected.size === 0) {
     el.results.innerHTML = '';
+    el.insights.innerHTML = '';
     const hero = document.createElement('div');
     hero.className = 'hero-empty';
     const title = document.createElement('p');
@@ -322,6 +396,7 @@ async function refresh() {
   } catch (err) {
     if (seq !== state.requestSeq) return;
     el.results.innerHTML = '';
+    el.insights.innerHTML = '';
     el.results.appendChild(msg(`Could not load the schedule: ${err.message}`, 'error'));
     return;
   }
@@ -366,9 +441,12 @@ function renderResults(data) {
   const tomorrowKey = localDayKey(addDays(new Date(), 1).toISOString());
 
   let dayIndex = 0;
-  for (const [dayKey, events] of [...byDay.entries()].sort(([a], [b]) => a.localeCompare(b))) {
+  const sortedDays = [...byDay.entries()].sort(([a], [b]) => a.localeCompare(b));
+  for (const [dayKey, events] of sortedDays) {
     const card = document.createElement('section');
     card.className = 'day-card';
+    card.id = `day-${dayKey}`;
+    if (dayKey === todayKey) card.classList.add('is-today');
     card.style.setProperty('--i', dayIndex++); // staggered entrance
 
     const head = document.createElement('div');
@@ -436,6 +514,8 @@ function renderResults(data) {
     el.results.appendChild(msg('No schedule data available right now.'));
   }
 
+  renderInsights(sortedDays, data, todayKey, tomorrowKey);
+
   // Sports with zero events are listed explicitly, never silently dropped.
   if (emptySports.length > 0) {
     const card = document.createElement('div');
@@ -450,6 +530,81 @@ function renderResults(data) {
       card.appendChild(line);
     }
     el.results.appendChild(card);
+  }
+}
+
+/** Desktop-only rail: jump-to-day nav + per-sport breakdown. No-op content
+ *  on mobile (the aside is display:none there, so this is cheap but inert). */
+function renderInsights(sortedDays, data, todayKey, tomorrowKey) {
+  el.insights.innerHTML = '';
+  if (sortedDays.length === 0 && Object.keys(data.sports).length === 0) return;
+
+  if (sortedDays.length > 0) {
+    const panel = document.createElement('div');
+    panel.className = 'insights-panel';
+    const h3 = document.createElement('h3');
+    h3.textContent = 'Jump to a day';
+    panel.appendChild(h3);
+    const list = document.createElement('div');
+    list.className = 'insights-days';
+    for (const [dayKey, events] of sortedDays) {
+      const link = document.createElement('a');
+      link.className = 'insights-day-link';
+      link.href = `#day-${dayKey}`;
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById(`day-${dayKey}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+      if (dayKey === todayKey || dayKey === tomorrowKey) {
+        const tag = document.createElement('span');
+        tag.className = 'day-tag';
+        tag.textContent = dayKey === todayKey ? 'Today' : 'Tmrw';
+        link.appendChild(tag);
+      }
+      const label = document.createElement('span');
+      label.textContent = formatDayHeading(events[0].startTimeUtc);
+      const count = document.createElement('span');
+      count.className = 'day-count';
+      count.textContent = events.length;
+      link.append(label, count);
+      list.appendChild(link);
+    }
+    panel.appendChild(list);
+    el.insights.appendChild(panel);
+  }
+
+  const sportEntries = Object.entries(data.sports)
+    .map(([sport, entry]) => [sport, entry.events.length])
+    .sort(([, a], [, b]) => b - a);
+  if (sportEntries.length > 0) {
+    const panel = document.createElement('div');
+    panel.className = 'insights-panel';
+    const h3 = document.createElement('h3');
+    h3.textContent = 'By sport';
+    panel.appendChild(h3);
+    const list = document.createElement('div');
+    list.className = 'insights-sports';
+    const max = Math.max(1, ...sportEntries.map(([, n]) => n));
+    for (const [sport, count] of sportEntries) {
+      const row = document.createElement('div');
+      row.className = 'insights-sport-row';
+      const name = document.createElement('span');
+      name.textContent = sport;
+      name.style.flexShrink = '0';
+      const track = document.createElement('span');
+      track.className = 'bar-track';
+      const fill = document.createElement('span');
+      fill.className = 'bar-fill';
+      fill.style.width = `${(count / max) * 100}%`;
+      track.appendChild(fill);
+      const num = document.createElement('span');
+      num.className = 'sport-count';
+      num.textContent = count;
+      row.append(name, track, num);
+      list.appendChild(row);
+    }
+    panel.appendChild(list);
+    el.insights.appendChild(panel);
   }
 }
 
@@ -503,8 +658,16 @@ el.apply.addEventListener('click', () => {
   state.from = el.from.value;
   state.to = el.to.value;
   el.presets.forEach((b) => b.classList.remove('active'));
+  el.segmentedThumb.style.width = '0px';
   scheduleRefresh();
 });
+el.jumpToday.addEventListener('click', () => {
+  const today = el.results.querySelector('.day-card.is-today');
+  if (today) today.scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+window.addEventListener('resize', positionSegmentedThumb);
 
+initLargeTitle();
+initPullToRefresh();
 applyPreset('week');
 loadSports().then(refresh);

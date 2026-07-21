@@ -26,7 +26,7 @@
           <path d="M9 8h14a1 1 0 0 1 1 1v3H8V9a1 1 0 0 1 1-1zm-1 6h16v9a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-9zm4 3v2h2v-2h-2zm5 0v2h2v-2h-2z" fill="currentColor"/>
         </svg>
         <div class="brand-text">
-          <span class="brand-name">SportsWeek</span>
+          <span class="brand-name" id="topbar-brand">SportsWeek</span>
         </div>
       </div>
       <div class="topbar-right">
@@ -38,10 +38,23 @@
       </div>
     </header>
 
+    <!-- iOS-style Large Title: big at rest, collapses into the compact
+         topbar brand as the page scrolls (mobile only; desktop keeps the
+         topbar brand visible at all times instead). -->
+    <div class="large-title-wrap" id="large-title-wrap">
+      <h1 class="large-title">SportsWeek</h1>
+    </div>
+
     <section class="intro">
       <p class="intro-tagline">Sport schedules, at a glance.</p>
       <p class="intro-sub">Pick the sports you follow — every match shows up below, day by day, in your local time zone.</p>
     </section>
+
+    <!-- Pull-to-refresh indicator (mobile only; shown/animated during the
+         touch gesture, see app.js). -->
+    <div class="ptr-indicator" id="ptr-indicator" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M20 4v4.5h-4.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
 
     <div class="layout">
       <aside class="sidebar">
@@ -54,6 +67,7 @@
           <h2 id="range-heading" class="visually-hidden">Date range</h2>
           <div class="segmented-scroll">
             <div class="segmented" role="group" aria-label="Date range presets">
+              <span class="segmented-thumb" id="segmented-thumb" aria-hidden="true"></span>
               <button type="button" data-preset="week" class="preset active">This week</button>
               <button type="button" data-preset="nextweek" class="preset">Next week</button>
               <button type="button" data-preset="fortnight" class="preset">Next 14 days</button>
@@ -71,6 +85,10 @@
         <div id="notes"></div>
         <section id="results" class="results" aria-live="polite" aria-label="Schedule"></section>
       </main>
+
+      <!-- Desktop-only insights rail: quick day navigation + per-sport
+           breakdown, the kind of at-a-glance nav real sports sites have. -->
+      <aside class="insights" id="insights" aria-label="Schedule overview"></aside>
     </div>
 
     <footer class="foot">
@@ -79,8 +97,12 @@
     </footer>
   </div>
 
-  <!-- Mobile bottom action bar (thumb zone) -->
+  <!-- Mobile bottom toolbar (thumb zone): jump-to-today + sport picker -->
   <div class="bottombar">
+    <button type="button" id="jump-today" class="bottombar-btn bottombar-btn-secondary">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 9.5h16M8 3v3.5M16 3v3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="14.5" r="1.6"/></svg>
+      <span>Today</span>
+    </button>
     <button type="button" id="open-sports" class="bottombar-btn">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
       <span>Choose sports</span>

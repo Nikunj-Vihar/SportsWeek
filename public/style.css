@@ -95,7 +95,7 @@ body {
 body.sheet-open { overflow: hidden; }
 
 .app {
-  max-width: 72rem;
+  max-width: 87rem;
   margin: 0 auto;
   padding: 0 max(1.25rem, env(safe-area-inset-left)) 4rem
              max(1.25rem, env(safe-area-inset-right));
@@ -206,6 +206,13 @@ button:active { transform: scale(0.97); }
   grid-template-columns: 18.5rem minmax(0, 1fr);
   gap: 2.5rem;
   align-items: start;
+}
+
+/* Insights rail only earns its own column once there's real room for it;
+   below that it simply doesn't render content (see app.js) and stays out
+   of the flow via display:none. */
+@media (min-width: 1240px) {
+  .layout { grid-template-columns: 18.5rem minmax(0, 1fr) 16rem; }
 }
 
 .sidebar {
@@ -388,6 +395,7 @@ button:active { transform: scale(0.97); }
 .segmented-scroll::-webkit-scrollbar { display: none; }
 
 .segmented {
+  position: relative;
   display: inline-flex;
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -396,7 +404,23 @@ button:active { transform: scale(0.97); }
   gap: 0.15rem;
   white-space: nowrap;
 }
+/* Real sliding selection (native segmented-control motion): app.js sizes and
+   positions this to match the active button; the buttons stay transparent
+   and just ride on top, z-index above the thumb. */
+.segmented-thumb {
+  position: absolute;
+  top: 0.2rem;
+  bottom: 0.2rem;
+  left: 0.2rem;
+  width: 0;
+  border-radius: 8px;
+  background: var(--invert-bg);
+  transition: transform 320ms var(--ease-spring), width 320ms var(--ease-spring);
+  will-change: transform;
+}
 .segmented .preset {
+  position: relative;
+  z-index: 1;
   font-size: 0.88rem;
   font-weight: 500;
   min-height: 2.3rem;
@@ -406,12 +430,11 @@ button:active { transform: scale(0.97); }
   border-radius: 8px;
   padding: 0.36rem 1rem;
   cursor: pointer;
-  transition: background 180ms var(--ease-spring), color 180ms var(--ease-spring);
+  transition: color 180ms var(--ease-spring);
 }
 .segmented .preset:hover { color: var(--text); }
 .segmented .preset.active {
   color: var(--invert-text);
-  background: var(--invert-bg);
   font-weight: 550;
 }
 
@@ -478,10 +501,20 @@ input[type="date"]:focus {
   .manual-range input[type="date"] {
     width: 100%;
     min-height: 2.5rem;
+    padding: 0.32rem 0.2rem;
+    font-size: 0.86rem;
     text-align: center;
   }
   .range-arrow { align-self: center; }
-  .apply-btn { min-height: 2.5rem; }
+  .apply-btn { min-height: 2.5rem; padding-inline: 0.7rem; }
+}
+
+/* Narrowest phones (e.g. iPhone SE, 375px): the date strip needs every
+   pixel it can get, so drop to a slightly smaller type size rather than
+   let the native date input clip its own text. */
+@media (max-width: 400px) {
+  .manual-range input[type="date"] { font-size: 0.78rem; padding-inline: 0.1rem; }
+  .apply-btn { padding-inline: 0.55rem; font-size: 0.8rem; }
 }
 
 /* ---------- Summary & notes ---------- */
@@ -532,6 +565,17 @@ input[type="date"]:focus {
   animation-delay: calc(var(--i, 0) * 55ms);
 }
 .day-card:first-child { border-top: none; padding-top: 0; }
+
+/* Today earns visual weight, not just a badge: a quiet left rule rather
+   than a filled block, so it reads as "featured" without breaking the
+   restrained, monochrome language. */
+.day-card.is-today {
+  border-left: 3px solid var(--invert-bg);
+  padding-left: 0.9rem;
+  margin-left: -1rem;
+}
+.day-card.is-today.day-card:first-child { margin-top: 0; }
+.day-card.is-today .day-head h3 { font-size: 1.12rem; }
 
 @keyframes rise {
   from { opacity: 0; transform: translateY(14px); }
@@ -585,6 +629,56 @@ input[type="date"]:focus {
   border-bottom: 1px solid var(--border);
 }
 .event:last-child { border-bottom: none; }
+
+/* Desktop-only: a quiet hover highlight on each row, professional-dashboard
+   feel without any new color. */
+@media (min-width: 901px) {
+  .event {
+    border-radius: 8px;
+    margin: 0 -0.5rem;
+    padding: 0.65rem 0.5rem;
+    transition: background 120ms ease;
+  }
+  .event:hover { background: var(--surface-2); }
+}
+
+/* Mobile: iOS-style inset grouped card per day instead of a flat rule —
+   each day becomes a self-contained rounded block (Settings.app list
+   language), so the sticky per-row day header no longer applies. Placed
+   after the base .day-head/.event rules so it actually wins the cascade
+   (equal specificity, later source order). */
+@media (max-width: 900px) {
+  .day-card {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface);
+    padding: 0;
+    margin-left: 0;
+    overflow: hidden;
+  }
+  .day-card:first-child { border: 1px solid var(--border); padding-top: 0; }
+  .day-card.is-today { border-left: 1px solid var(--border); padding-left: 0; margin-left: 0; }
+  .day-head {
+    position: static;
+    top: auto;
+    background: var(--surface-2);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    padding: 0.7rem 1rem 0.6rem;
+    margin-bottom: 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .day-card.is-today .day-head {
+    background: var(--invert-bg);
+    color: var(--invert-text);
+  }
+  .day-card.is-today .day-head .day-badge {
+    background: var(--invert-text);
+    color: var(--invert-bg);
+  }
+  .day-card.is-today .day-head .day-count { color: var(--invert-text); opacity: 0.7; }
+  .event { padding: 0.65rem 1rem; }
+}
 
 .event-time {
   font-size: 0.84rem;
@@ -697,6 +791,7 @@ input[type="date"]:focus {
   position: fixed;
   left: 0; right: 0; bottom: 0;
   z-index: 45;
+  gap: 0.6rem;
   padding: 0.7rem max(1rem, env(safe-area-inset-left))
            calc(0.7rem + env(safe-area-inset-bottom))
            max(1rem, env(safe-area-inset-right));
@@ -705,14 +800,14 @@ input[type="date"]:focus {
   backdrop-filter: saturate(180%) blur(20px);
   border-top: 1px solid var(--border);
 }
-@media (max-width: 900px) { .bottombar { display: block; } }
+@media (max-width: 900px) { .bottombar { display: flex; } }
 
 .bottombar-btn {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.55rem;
-  width: 100%;
+  flex: 1;
   min-height: 3.1rem;
   font-size: 0.98rem;
   font-weight: 600;
@@ -726,6 +821,21 @@ input[type="date"]:focus {
 }
 .bottombar-btn:active { transform: scale(0.98); }
 .bottombar-btn svg { width: 1.1rem; height: 1.1rem; }
+
+/* "Today" is the secondary action: quieter outline, doesn't compete with
+   the primary "Choose sports" button. Icon-only on very narrow screens. */
+.bottombar-btn-secondary {
+  flex: 0 0 auto;
+  min-width: 3.1rem;
+  padding: 0 1rem;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+}
+@media (max-width: 400px) {
+  .bottombar-btn-secondary span { display: none; }
+  .bottombar-btn-secondary { padding: 0; width: 3.1rem; }
+}
 .bottombar-count {
   font-size: 0.78rem;
   font-weight: 650;
@@ -807,6 +917,146 @@ input[type="date"]:focus {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   padding: 1rem 1.15rem 1.4rem;
+}
+
+/* ---------- Large Title (mobile "iOS app" nav pattern) ---------- */
+/* At rest: big bold title below the topbar, topbar's own brand text
+   invisible. Past a scroll threshold, app.js toggles body.scrolled, which
+   cross-fades the two — mirroring UINavigationController's large-title
+   collapse (Settings, Mail, App Store). Desktop never engages this: the
+   topbar brand stays visible throughout and the large title never renders. */
+
+.large-title-wrap { display: none; }
+
+@media (max-width: 900px) {
+  #topbar-brand { opacity: 0; transition: opacity 200ms ease; }
+  body.scrolled #topbar-brand { opacity: 1; }
+
+  .large-title-wrap {
+    display: block;
+    padding: 0.1rem 0 0.9rem;
+    transition: opacity 220ms ease, transform 220ms var(--ease-spring);
+    transform-origin: left top;
+  }
+  body.scrolled .large-title-wrap {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+    pointer-events: none;
+  }
+  .large-title {
+    margin: 0;
+    font-size: clamp(1.9rem, 8vw, 2.3rem);
+    font-weight: 750;
+    letter-spacing: -0.03em;
+  }
+}
+
+/* ---------- Pull-to-refresh (mobile) ---------- */
+
+.ptr-indicator {
+  display: none;
+}
+@media (max-width: 900px) {
+  .ptr-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 0;
+    overflow: hidden;
+    color: var(--muted);
+    transition: height 160ms var(--ease-spring);
+  }
+  .ptr-indicator svg { width: 1.2rem; height: 1.2rem; }
+  .ptr-indicator.pulling svg { transition: transform 80ms linear; }
+  .ptr-indicator.ready { color: var(--text); }
+  .ptr-indicator.refreshing svg { animation: ptr-spin 800ms linear infinite; }
+}
+@keyframes ptr-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---------- Insights rail (desktop) ---------- */
+
+.insights {
+  display: none;
+}
+@media (min-width: 1240px) {
+  .insights {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    position: sticky;
+    top: calc(var(--topbar-h) + 1rem);
+  }
+  .insights:empty { display: none; }
+}
+
+.insights-panel h3 {
+  margin: 0 0 0.7rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--faint);
+}
+
+.insights-days { display: flex; flex-direction: column; gap: 0.15rem; }
+.insights-day-link {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.35rem 0.4rem;
+  margin: 0 -0.4rem;
+  border-radius: 7px;
+  font-size: 0.82rem;
+  color: var(--text-2);
+  text-decoration: none;
+  transition: background 120ms ease, color 120ms ease;
+}
+.insights-day-link:hover { background: var(--surface-2); color: var(--text); }
+.insights-day-link .day-tag {
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--invert-text);
+  background: var(--invert-bg);
+  border-radius: 4px;
+  padding: 0.02rem 0.35rem;
+}
+.insights-day-link .day-count {
+  margin-left: auto;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.78rem;
+}
+
+.insights-sports { display: flex; flex-direction: column; gap: 0.5rem; }
+.insights-sport-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.82rem;
+  color: var(--text-2);
+}
+.insights-sport-row .bar-track {
+  flex: 1;
+  height: 0.35rem;
+  border-radius: 999px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.insights-sport-row .bar-fill {
+  height: 100%;
+  background: var(--invert-bg);
+  border-radius: inherit;
+}
+.insights-sport-row .sport-count {
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+  font-size: 0.78rem;
+  min-width: 1.2rem;
+  text-align: right;
 }
 
 /* ---------- Footer ---------- */
