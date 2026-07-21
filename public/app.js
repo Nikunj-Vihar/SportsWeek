@@ -1,6 +1,6 @@
 import { API_BASE } from './config.js';
 import { localDayKey, formatDayHeading, formatTimeShort, hoursAgo } from './format.js';
-import { sportIconSvg } from './icons.js';
+import { categoryIconSvg } from './icons.js';
 
 const STORAGE_KEY = 'sportsweek:selectedSports';
 const THEME_KEY = 'sportsweek:theme';
@@ -36,6 +36,7 @@ const el = {
 
 const state = {
   allSports: [],                       // [{name, category}]
+  categoryBySport: new Map(),
   selected: loadSelection(),
   from: null,                          // YYYY-MM-DD (local)
   to: null,
@@ -186,6 +187,7 @@ async function loadSports() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     state.allSports = data.sports;
+    state.categoryBySport = new Map(data.sports.map((s) => [s.name, s.category]));
     renderPicker();
   } catch (err) {
     el.groups.innerHTML = '';
@@ -214,7 +216,10 @@ function renderPicker() {
     section.className = 'sport-category';
     const label = document.createElement('p');
     label.className = 'category-label';
-    label.textContent = category;
+    const labelIcon = document.createElement('span');
+    labelIcon.className = 'category-icon';
+    labelIcon.innerHTML = categoryIconSvg(category);
+    label.append(labelIcon, document.createTextNode(category));
     section.appendChild(label);
 
     const row = document.createElement('div');
@@ -237,16 +242,12 @@ function renderPicker() {
         scheduleRefresh();
       });
 
-      const icon = document.createElement('span');
-      icon.className = 'chip-icon';
-      icon.innerHTML = sportIconSvg(name);
-
       const check = document.createElement('span');
       check.className = 'chip-check';
       check.setAttribute('aria-hidden', 'true');
       check.innerHTML = CHECK_SVG;
 
-      chip.append(checkbox, icon, check, document.createTextNode(name));
+      chip.append(checkbox, check, document.createTextNode(name));
       row.appendChild(chip);
     }
     section.appendChild(row);
@@ -403,7 +404,7 @@ function renderResults(data) {
       sportTag.className = 'sport-tag';
       const tagIcon = document.createElement('span');
       tagIcon.className = 'sport-tag-icon';
-      tagIcon.innerHTML = sportIconSvg(event.sport);
+      tagIcon.innerHTML = categoryIconSvg(state.categoryBySport.get(event.sport));
       sportTag.append(tagIcon, document.createTextNode(event.sport));
 
       // Matches read best as "A vs B" with the league as a subtitle;
